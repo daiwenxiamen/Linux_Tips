@@ -1,0 +1,61 @@
+我来介绍一下Linux下常用的压缩和解压缩命令:
+
+1. tar 格式 (.tar)
+
+# 解压
+tar -xf file.tar
+
+# 压缩
+tar -cf file.tar directory/
+
+
+2. tar.gz/tgz 格式
+
+# 解压
+tar -xzf file.tar.gz
+
+# 压缩
+tar -czf file.tar.gz directory/
+
+
+3. zip 格式
+
+# 解压
+unzip file.zip
+
+# 压缩
+zip -r file.zip directory/
+
+
+4. rar 格式
+
+# 解压(需要先安装 unrar)
+unrar x file.rar
+
+# 压缩(需要先安装 rar)
+rar a file.rar directory/
+
+
+5. 7z 格式
+
+# 解压(需要先安装 p7zip)
+7z x file.7z
+
+# 压缩
+7z a file.7z directory/
+
+
+常用参数说明:
+- tar 命令:
+  - -x: 解压
+  - -c: 创建压缩文件
+  - -f: 指定文件名
+  - -z: 使用 gzip 压缩
+  - -v: 显示处理过程(可选)
+
+需要注意:
+1. 某些格式可能需要先安装对应的工具,如 rar 和 7z
+2. 解压时注意当前目录是否有足够空间
+3. -v 参数可以显示处理过程,方便查看进度
+
+可以根据文件格式选择对应的命令使用。tar.gz 是 Linux 下最常用的压缩格式。
