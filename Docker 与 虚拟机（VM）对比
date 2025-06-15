@@ -1,0 +1,53 @@
+Docker 和虚拟机（VM）都是用于 隔离应用环境 的技术，但它们的架构、性能和适用场景有显著区别：
+
+对比项	Docker（容器）	虚拟机（VM）
+架构	共享主机 OS 内核，轻量级（仅打包应用和依赖）	每个 VM 运行完整 OS（Guest OS + Hypervisor）
+启动速度	秒级启动（毫秒级）	分钟级启动（需启动完整 OS）
+性能	接近原生性能（无虚拟化开销）	有 CPU/内存/IO 虚拟化开销（~5-20%）
+资源占用	极低（仅占用应用所需资源）	较高（每个 VM 需分配独立 OS 资源）
+隔离性	进程级隔离（依赖 Linux 内核特性）	硬件级隔离（更安全，适合多租户环境）
+镜像大小	小（通常 MB 级，如 Alpine 仅 5MB）	大（GB 级，如 Ubuntu 镜像约 2GB）
+部署密度	高（单机可运行数百容器）	低（单机通常运行 10-20 个 VM）
+跨平台支持	依赖 Linux 内核（Windows/macOS 需虚拟机）	支持所有 OS（通过 Hypervisor 虚拟化）
+典型用途	微服务、CI/CD、DevOps、云原生应用	传统应用、安全隔离环境（如银行、政务）
+代表技术	Docker, Kubernetes, Podman	VMware, VirtualBox, KVM, Hyper-V
+核心区别
+虚拟化层级
+
+Docker：利用宿主机的 OS 内核，通过 cgroups/namespaces 隔离进程（轻量级）。
+
+VM：通过 Hypervisor 虚拟化硬件，运行完整 Guest OS（重量级）。
+
+资源开销
+
+Docker 容器共享内核，无重复 OS 开销；VM 每个实例需独立分配内存、CPU 等资源。
+
+安全性
+
+VM 的硬件级隔离更安全（适合不可信 workload）；Docker 依赖 Linux 安全机制（如 Seccomp、AppArmor）。
+
+移植性
+
+Docker 镜像跨环境一致（“Build once, run anywhere”）；VM 镜像通常绑定特定 Hypervisor。
+
+如何选择？
+用 Docker（容器）：
+
+需要快速部署、微服务架构、高密度部署。
+
+开发测试环境（秒级启动，节省资源）。
+
+云原生场景（Kubernetes 编排）。
+
+用虚拟机（VM）：
+
+需要强隔离（如不同 OS 或安全敏感应用）。
+
+运行传统单体应用（如 Windows 应用）。
+
+硬件虚拟化需求（如模拟特定网络/存储设备）。
+
+趋势
+容器化（Docker/Kubernetes）已成为云时代的主流，但 VM 仍不可替代，尤其在安全隔离和遗留系统兼容场景。
+
+混合方案（如 Kata Containers）尝试结合两者的优势：容器的轻量 + VM 的安全隔离。
