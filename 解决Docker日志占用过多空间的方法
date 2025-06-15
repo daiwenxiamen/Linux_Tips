@@ -1,0 +1,69 @@
+Docker日志占用过多空间是常见问题，以下是解决方案和预防措施：
+
+立即清理日志
+查看日志文件大小：
+
+bash
+du -h /var/lib/docker/containers/*/*-json.log
+清理单个容器的日志：
+
+bash
+truncate -s 0 /var/lib/docker/containers/<container_id>/<container_id>-json.log
+清理所有容器的日志：
+
+bash
+truncate -s 0 /var/lib/docker/containers/*/*-json.log
+预防措施
+1. 配置日志轮转（推荐）
+修改或创建 /etc/docker/daemon.json 文件：
+
+json
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  }
+}
+然后重启Docker服务：
+
+bash
+sudo systemctl restart docker
+2. 全局日志限制
+在Docker配置中设置全局日志限制：
+
+bash
+sudo dockerd --log-opt max-size=10m --log-opt max-file=3
+3. 使用其他日志驱动
+如果不需要详细日志，可以改用更简单的日志驱动：
+
+json
+{
+  "log-driver": "journald"
+}
+4. 容器级别设置
+运行容器时直接限制日志：
+
+bash
+docker run --log-driver json-file --log-opt max-size=10m --log-opt max-file=3 your_image
+5. 定期清理脚本
+创建定期清理脚本（如 /usr/local/bin/clean-docker-logs.sh）：
+
+bash
+#!/bin/bash
+find /var/lib/docker/containers/ -name '*-json.log' -exec truncate -s 0 {} \;
+然后添加到cron定时任务。
+
+6. 禁用非必要容器的日志
+对于不需要日志的容器：
+
+bash
+docker run --log-driver none your_image
+注意事项
+修改日志配置后，新创建的容器才会生效
+
+现有容器的配置需要重新创建才能应用新设置
+
+生产环境中请确保保留足够的日志用于故障排查
+
+通过以上方法，您可以有效控制Docker日志对磁盘空间的占用。
