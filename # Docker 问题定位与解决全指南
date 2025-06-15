@@ -1,0 +1,128 @@
+
+
+## 一、基础问题定位方法
+
+### 1. 查看容器状态
+```bash
+docker ps -a  # 查看所有容器状态
+docker stats  # 实时监控容器资源使用
+```
+
+### 2. 检查容器日志
+```bash
+docker logs <container_id>        # 查看完整日志
+docker logs --tail 100 <container_id>  # 查看最后100行
+docker logs -f <container_id>     # 实时跟踪日志
+```
+
+### 3. 进入容器内部检查
+```bash
+docker exec -it <container_id> /bin/bash  # 进入运行中的容器
+docker run -it --rm <image> /bin/sh      # 启动临时容器进行测试
+```
+
+## 二、常见问题分类解决
+
+### 1. 容器启动失败
+**定位步骤**：
+```bash
+docker inspect <container_id>  # 查看详细配置和状态
+docker events --since '1h'    # 查看近期事件
+```
+
+**常见原因**：
+- 端口冲突：`Error starting userland proxy: listen tcp 0.0.0.0:80: bind: address already in use`
+- 镜像问题：`Unable to find image 'xxx:latest' locally`
+- 权限问题：`Permission denied`
+
+### 2. 网络连接问题
+**诊断命令**：
+```bash
+docker network ls             # 列出所有网络
+docker network inspect <network>  # 检查网络详情
+docker exec <container> ping <target>  # 测试容器内网络
+```
+
+### 3. 存储问题
+**诊断命令**：
+```bash
+docker volume ls             # 列出所有卷
+docker system df             # 查看Docker磁盘使用
+docker inspect -f '{{ .Mounts }}' <container>  # 查看挂载点
+```
+
+## 三、高级诊断工具
+
+### 1. 容器健康检查
+```bash
+docker inspect --format='{{json .State.Health}}' <container>
+```
+
+### 2. 容器内进程检查
+```bash
+docker top <container>      # 查看容器进程
+docker exec <container> ps aux  # 更详细的进程信息
+```
+
+### 3. 使用Docker诊断工具
+```bash
+docker info                 # Docker系统信息
+docker version              # 版本信息
+docker system info          # 详细系统信息
+```
+
+## 四、典型问题解决方案
+
+### 1. 容器崩溃重启
+```bash
+# 查看退出代码
+docker inspect -f '{{.State.ExitCode}}' <container>
+
+# 常见退出代码：
+# 0: 正常退出
+# 137: 被SIGKILL终止(内存不足/OOM)
+# 143: 被SIGTERM终止(优雅退出)
+```
+
+### 2. 性能问题
+```bash
+# 查看资源限制
+docker inspect -f '{{.HostConfig.Memory}}' <container>
+
+# 监控资源使用
+docker stats --no-stream <container>
+```
+
+### 3. 镜像构建问题
+```bash
+# 查看构建缓存
+docker history <image>
+
+# 详细构建日志(构建时)
+docker build --no-cache --progress=plain .
+```
+
+## 五、实用排查技巧
+
+1. **最小化复现**：使用`--rm`参数创建临时测试容器
+   ```bash
+   docker run --rm -it <image> /bin/sh
+   ```
+
+2. **对比测试**：使用相同镜像启动新容器对比行为
+   ```bash
+   docker run --name test_<issue> <image>
+   ```
+
+3. **环境检查**：验证基础环境
+   ```bash
+   docker run --rm busybox ping google.com
+   docker run --rm busybox nslookup google.com
+   ```
+
+4. **日志分析**：结合grep等工具分析日志
+   ```bash
+   docker logs <container> 2>&1 | grep -i error
+   ```
+
+通过以上系统化的定位和解决方法，可以高效处理大多数Docker相关问题。
